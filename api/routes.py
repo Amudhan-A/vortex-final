@@ -9,9 +9,11 @@ from db.repository import (
     update_function,
     get_function,
     get_repo_functions,
-    get_repo_files
+    get_repo_files,
+    save_repo_graph,
+    call_graph_collection
 )
-
+from analyzer.repo_graph import build_repo_graph
 
 router = APIRouter()
 
@@ -34,6 +36,9 @@ def analyze_function(
     )
 
     analysis, ownership = analyze(git_context)
+
+    repo_graph = build_repo_graph(repo_path)
+    save_repo_graph(repo_path, repo_graph)
 
     data = {
         "repo": git_context.repo,
@@ -137,6 +142,48 @@ def list_files(repo_name: str):
     files = get_repo_files(repo_name)
 
     return {"files": files}
+
+
+# THIS GIVES ALL THE FUNCTIOSN 
+
+# @router.get("/repo-map")
+# def get_repo_map(repo: str):
+
+#     edges = list(call_graph_collection.find({"repo": repo}, {"_id": 0}))
+
+#     nodes = set()
+
+#     for edge in edges:
+#         nodes.add(edge["caller"])
+#         nodes.add(edge["callee"])
+
+#     return {
+#         "nodes": list(nodes),
+#         "edges": edges
+#     }
+
+@router.get("/repo-map")
+def get_repo_map(repo: str):
+
+    edges = list(call_graph_collection.find({"repo": repo}, {"_id": 0}))
+
+    functions = set(f["function_name"] for f in get_repo_functions(repo))
+
+    filtered_edges = [
+        e for e in edges
+        if e["caller"] in functions or e["callee"] in functions
+    ]
+
+    nodes = set()
+
+    for edge in filtered_edges:
+        nodes.add(edge["caller"])
+        nodes.add(edge["callee"])
+
+    return {
+        "nodes": list(nodes),
+        "edges": filtered_edges
+    }
 
 
 # include webhook routes

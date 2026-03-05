@@ -1,4 +1,5 @@
 from .mongodb import functions_collection
+from .mongodb import functions_collection, call_graph_collection
 
 
 def save_function(data):
@@ -53,3 +54,35 @@ def get_function(repo, filepath, function_name):
 def get_repo_files(repo_name):
 
     return functions_collection.distinct("filepath", {"repo": repo_name})
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+def save_repo_graph(repo, graph):
+    """
+    Store repo dependency graph edges
+    """
+    call_graph_collection.delete_many({"repo": repo})
+
+    edges = []
+
+    for caller, callees in graph.items():
+        for callee in callees:
+            edges.append({
+                "repo": repo,
+                "caller": caller,
+                "callee": callee
+            })
+
+    if edges:
+        call_graph_collection.insert_many(edges)

@@ -10,4 +10,5 @@ client = MongoClient(MONGO_URI)
 
 db = client["git_blame"]
 
+call_graph_collection = db["call_graph"]
 functions_collection = db["functions"]

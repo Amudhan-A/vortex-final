@@ -1,13 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from analyzer.repo_graph import build_repo_graph
+from db.repository import save_repo_graph
 
 webhook_router = APIRouter()
 
+@webhook_router.post("/github-webhook")
+async def github_webhook(repo_name: str, repo_path: str):
 
-@webhook_router.post("/webhook/github")
-def github_webhook(payload: dict):
+    repo_graph = build_repo_graph(repo_path)
 
-    # placeholder for future processing
-    return {
-        "status": "received",
-        "event": "github_webhook"
-    }
+    save_repo_graph(repo_name, repo_graph)
+
+    return {"status": "graph updated"}
