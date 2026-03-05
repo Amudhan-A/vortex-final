@@ -4,7 +4,7 @@ from .ownership import compute_ownership
 
 from .repo_graph import build_repo_graph
 from .blast_radius import compute_repo_blast_radius
-
+import os
 
 def analyze(git_context: GitContext) -> tuple[AnalysisResult, OwnershipResult]:
     """
@@ -22,9 +22,14 @@ def analyze(git_context: GitContext) -> tuple[AnalysisResult, OwnershipResult]:
         filepath=git_context.filepath,
         function_name=git_context.function_name
     )
-
+    repo_path = os.path.normpath(git_context.repo)
     # -------- REPOSITORY LEVEL GRAPH --------
     repo_graph = build_repo_graph(git_context.repo)
+ # -------- DEBUG --------
+    print("Repo path:", repo_path)
+    print("Total functions in repo graph:", len(repo_graph))
+    print("Direct callers of function:", repo_graph.get(git_context.function_name, set()))
+
 
     blast_radius = list(
         compute_repo_blast_radius(
@@ -32,7 +37,7 @@ def analyze(git_context: GitContext) -> tuple[AnalysisResult, OwnershipResult]:
             repo_graph
         )
     )
-
+    print("Blast radius result:", blast_radius)
     # -------- OWNERSHIP --------
     ownership = compute_ownership(
         git_context.commits
@@ -45,5 +50,20 @@ def analyze(git_context: GitContext) -> tuple[AnalysisResult, OwnershipResult]:
         callees=file_analysis.callees,
         blast_radius=blast_radius
     )
+
+    
+    repo_graph = build_repo_graph(git_context.repo)
+
+    # add these debug lines
+    print("Total functions in repo graph:", len(repo_graph))
+    print("Direct callers of function:", repo_graph.get(git_context.function_name, set()))
+
+    blast_radius = list(
+        compute_repo_blast_radius(
+            git_context.function_name,
+            repo_graph
+        )
+    )
+    print("Blast radius result:", blast_radius)
 
     return analysis, ownership

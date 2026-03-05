@@ -72,8 +72,9 @@ def analyze_function(
 @router.post("/explain-function")
 def explain(req: ExplainRequest):
 
+    # use repo_path consistently, not repo_name
     existing = get_function(
-        req.repo_name,
+        req.repo_path,     # ← fix: was req.repo_name
         req.filepath,
         req.function_name
     )
@@ -93,29 +94,54 @@ def explain(req: ExplainRequest):
         repo_name=req.repo_name
     )
 
+    # re-run analyze to get analysis + blast_radius and save everything together
+    from miner.git_processor import mine_git_history
+    from analyzer.analyze import analyze
+
+    git_context = mine_git_history(
+        req.repo_path,
+        req.filepath,
+        req.function_name,
+        req.owner,
+        req.repo_name
+    )
+    analysis, ownership = analyze(git_context)
+
     update_function(
-        req.repo_name,
+        req.repo_path,     # ← fix: was req.repo_name
         req.filepath,
         req.function_name,
         {
+            "repo":          req.repo_path,
+            "filepath":      req.filepath,
+            "function_name": req.function_name,
+            "analysis": {
+                "callers":      analysis.callers,
+                "callees":      analysis.callees,
+                "blast_radius": analysis.blast_radius   # ← now actually saved
+            },
+            "ownership": {
+                "primary_owner": ownership.primary_owner,
+                "confidence":    ownership.confidence
+            },
             "decision_log": {
                 "why_it_exists": result.why_it_exists,
                 "key_decisions": result.key_decisions,
                 "linked_issues": result.linked_issues,
-                "generated_at": result.generated_at
+                "generated_at":  result.generated_at
             }
         }
     )
 
     stored = get_function(
-        req.repo_name,
+        req.repo_path,     # ← fix: was req.repo_name
         req.filepath,
         req.function_name
     )
 
     return {
-        "analysis": stored.get("analysis"),
-        "ownership": stored.get("ownership"),
+        "analysis":    stored.get("analysis"),
+        "ownership":   stored.get("ownership"),
         "decision_log": stored.get("decision_log")
     }
 
