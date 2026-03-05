@@ -3,12 +3,15 @@ from shared.types import GitContext, AnalysisResult, OwnershipResult
 def build_decision_log_prompt(git_context: GitContext, analysis_result: AnalysisResult, ownership_result: OwnershipResult) -> str:
 
     commits_text = "\n".join([
-        f"- [{c.date}] {c.author}: {c.message} (issues: {', '.join(c.linked_issues) or 'none'})"
-        for c in git_context.commits
+        f"- [{c.date}] {c.author}: {c.message.strip()}"
+        f"\n  issues: {', '.join(c.linked_issues) or 'none'}"
+        f"\n  diff:\n{(c.diff_snippet[:500] if c.diff_snippet else 'no diff available')}\n"
+        for c in git_context.commits[:5]
     ]) or "No commits available."
 
+
     prs_text = "\n".join([
-        f"- PR #{pr.pr_number}: {pr.title}\n  {pr.body[:300]}"
+        f"- PR #{pr.pr_number}: {pr.title}\n {(pr.body or '').strip()[:300]}"
         for pr in git_context.prs
     ]) or "No PRs available."
 
