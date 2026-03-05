@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from analyzer import analyze
-
+from api.schemas import ExplainRequest
+from service.explain_function import explain_function
 # Dev1 miner import (adjust if function name differs)
 from miner.git_processor import mine_git_history
 
@@ -24,3 +25,18 @@ def analyze_function(repo_path: str, filepath: str, function_name: str):
         "analysis": analysis,
         "ownership": ownership
     }
+
+    
+
+@router.post("/explain-function")
+def explain(req: ExplainRequest):
+
+    result = explain_function(
+        repo_path=req.repo_path,
+        filepath=req.filepath,
+        function_name=req.function_name,
+        owner=req.owner,
+        repo_name=req.repo_name
+    )
+
+    return result
