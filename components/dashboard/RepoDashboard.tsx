@@ -1,10 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { GitBranch, Clock, Code2, User, ChevronRight, Search } from "lucide-react";
 import { FunctionCard } from "@/components/ui/card";
 import { AnimatedBadge } from "@/components/ui/badge";
 import { VortexButton } from "@/components/ui/button";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Sector,
+} from "recharts";
 
 export interface Contributor {
   name: string;
@@ -32,7 +39,17 @@ export interface RepoDashboardProps {
   onViewAll?: () => void;
   onContributorClick?: (name: string) => void;
   onGoToInspect?: () => void;
+  ownership?: { name: string; functions: number }[];
 }
+
+const PIE_COLORS = [
+  "#4ec9b0",
+  "#dcdcaa",
+  "#9cdcfe",
+  "#ce9178",
+  "#c586c0",
+  "#6b6b6b",
+];
 
 function StatTile({ label, value, icon }: {
   label: string;
@@ -90,6 +107,105 @@ function ContributorRow({ contributor, rank, max, onClick }: {
   );
 }
 
+function ActiveShape(props: any) {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  return (
+    <g>
+      <Sector
+        cx={cx} cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 4}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+}
+
+function PieTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[#252526] border border-[#3e3e42] rounded-sm px-3 py-2">
+      <p className="font-mono text-xs text-[#d4d4d4]">{payload[0].name}</p>
+      <p className="font-mono text-[10px] text-[#4ec9b0]">{payload[0].value} functions</p>
+    </div>
+  );
+}
+
+function OwnershipChart({ ownership }: { ownership: { name: string; functions: number }[] }) {
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+  const total = ownership.reduce((sum, o) => sum + o.functions, 0);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#6b6b6b]">
+        Ownership Breakdown
+      </span>
+      <div className="bg-[#252526] border border-[#3e3e42] rounded-sm p-4">
+        <div className="flex items-center gap-4">
+          <div className="shrink-0">
+            <PieChart width={120} height={120}>
+              <Pie
+                data={ownership}
+                dataKey="functions"
+                nameKey="name"
+                cx={55}
+                cy={55}
+                innerRadius={30}
+                outerRadius={50}
+                strokeWidth={0}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(undefined)}
+              >
+                {ownership.map((_, i) => (
+                  <Cell
+                    key={i}
+                    fill={PIE_COLORS[i % PIE_COLORS.length]}
+                    opacity={activeIndex === undefined || activeIndex === i ? 1 : 0.4}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<PieTooltip />} />
+            </PieChart>
+          </div>
+
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            {ownership.map((slice, i) => {
+              const pct = Math.round((slice.functions / total) * 100);
+              return (
+                <div
+                  key={slice.name}
+                  className="flex items-center gap-2 cursor-default"
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onMouseLeave={() => setActiveIndex(undefined)}
+                >
+                  <div
+                    className="size-2 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: PIE_COLORS[i % PIE_COLORS.length],
+                      opacity: activeIndex === undefined || activeIndex === i ? 1 : 0.4,
+                    }}
+                  />
+                  <span
+                    className="font-mono text-[11px] truncate flex-1"
+                    style={{ color: activeIndex === i ? "#d4d4d4" : "#6b6b6b" }}
+                  >
+                    {slice.name}
+                  </span>
+                  <span className="font-mono text-[10px] text-[#6b6b6b] shrink-0">
+                    {pct}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RepoDashboard({
   repoName,
   branch,
@@ -101,6 +217,7 @@ export function RepoDashboard({
   onViewAll,
   onContributorClick,
   onGoToInspect,
+  ownership,
 }: RepoDashboardProps) {
   const maxCommits = Math.max(...contributors.map((c) => c.commits), 1);
   const [analyzedDate, setAnalyzedDate] = React.useState("");
@@ -206,6 +323,12 @@ export function RepoDashboard({
         </div>
 
       </div>
+
+      {/* Ownership pie chart — inline, below the two columns */}
+      {ownership && ownership.length > 0 && (
+        <OwnershipChart ownership={ownership} />
+      )}
+
     </div>
   );
 }

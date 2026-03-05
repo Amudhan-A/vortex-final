@@ -42,6 +42,14 @@ export interface Contributor {
   functions: number;
 }
 
+
+
+
+export interface CommitFrequencyPoint {
+  date: string;
+  commits: number;
+}
+
 // ── Endpoints ──────────────────────────────────────────────────────────────
 
 export async function analyzeFunction(params: {
@@ -113,4 +121,13 @@ export async function getContributors(repo: string): Promise<Contributor[]> {
   if (!res.ok) throw new Error(await res.text());
   const data = await res.json();
   return data.contributors;
+}
+
+
+
+export async function getCommitFrequency(repo: string): Promise<CommitFrequencyPoint[]> {
+  const res = await fetch(`${BASE}/commit-frequency?repo=${encodeURIComponent(repo)}`);
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.commitFrequency;
 }

@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RepoDashboard } from "@/components/dashboard/RepoDashboard";
 import { StatsPanel } from "@/components/dashboard/StatsPanel";
-import { listFunctions, getContributors } from "@/services/api";
+import { listFunctions, getContributors, getCommitFrequency } from "@/services/api";
 import type { Contributor } from "@/services/api";
+
 
 const REPO = "D:\\vortex\\project\\backend";
 
@@ -17,14 +18,17 @@ export default function DashboardPage() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [functions,    setFunctions]    = useState<any[]>([]);
   const [loading,      setLoading]      = useState(true);
-
+  const [commitFrequency, setCommitFrequency] = useState<{ date: string; commits: number }[]>([]);
+  
   const loadData = () => {
     setLoading(true);
     Promise.all([
       getContributors(REPO),
       listFunctions(REPO),
-    ]).then(([contribs, fns]) => {
+      getCommitFrequency(REPO),  
+    ]).then(([contribs, fns, freq]) => {
       setContributors(contribs);
+      setCommitFrequency(freq)
       setFunctions(fns.map(f => ({
         functionName: f.function_name,
         filepath:     f.filepath,
@@ -65,6 +69,7 @@ export default function DashboardPage() {
           totalFunctions={functions.length}
           contributors={contributors}
           recentFunctions={functions.slice(0, 10)}
+          ownership={ownershipStats}  // ← add this
 
           onInspect={(fn) => {
             const match = functions.find(f => f.functionName === fn);
@@ -78,12 +83,7 @@ export default function DashboardPage() {
           onGoToInspect={() => router.push("/inspect")}
         />
       </div>
-      <div className="w-72 shrink-0">
-        <StatsPanel
-          commitFrequency={[]}
-          ownership={ownershipStats}
-        />
-      </div>
+      
     </div>
   );
 }
