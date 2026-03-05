@@ -8,17 +8,6 @@ def save_function(data):
     return functions_collection.insert_one(data)
 
 
-def get_function(repo, filepath, function_name):
-    """
-    Retrieve a function record
-    """
-    return functions_collection.find_one({
-        "repo": repo,
-        "filepath": filepath,
-        "function_name": function_name
-    })
-
-
 def update_function(repo, filepath, function_name, data):
     """
     Update existing function document
@@ -33,18 +22,34 @@ def update_function(repo, filepath, function_name, data):
         upsert=True
     )
 
-
-def list_repo_functions(repo):
-    """
-    List all functions belonging to a repo
-    """
-    return list(functions_collection.find({"repo": repo}))
-
+   
     
-    
-def get_existing_analysis(repo, filepath, function_name):
-    return functions_collection.find_one({
-        "repo": repo,
-        "filepath": filepath,
-        "function_name": function_name
-    })
+def get_repo_functions(repo_name: str):
+
+    results = functions_collection.find(
+        {"repo": repo_name},
+        {
+            "_id": 0,  # remove Mongo ObjectId
+            "filepath": 1,
+            "function_name": 1
+        }
+    )
+
+    return list(results)
+
+
+
+def get_function(repo, filepath, function_name):
+
+    return functions_collection.find_one(
+        {
+            "repo": repo,
+            "filepath": filepath,
+            "function_name": function_name
+        },
+        {"_id": 0}
+    )
+
+def get_repo_files(repo_name):
+
+    return functions_collection.distinct("filepath", {"repo": repo_name})

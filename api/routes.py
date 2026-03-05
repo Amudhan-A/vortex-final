@@ -5,10 +5,16 @@ from service.explain_function import explain_function
 # Dev1 miner import (adjust if function name differs)
 from miner.git_processor import mine_git_history
 from .webhook import webhook_router
-from db.repository import update_function, get_existing_analysis
+from db.repository import (
+    update_function,
+    get_function,
+    get_repo_functions,
+    get_repo_files
+)
 
 
 router = APIRouter()
+
 
 @router.post("/analyze")
 def analyze_function(repo_path: str, filepath: str, function_name: str):
@@ -54,23 +60,22 @@ def analyze_function(repo_path: str, filepath: str, function_name: str):
     }
 
 
-
-
 @router.post("/explain-function")
 def explain(req: ExplainRequest):
 
-    # check Mongo cache first
-    existing = get_existing_analysis(
+    existing = get_function(
         req.repo_name,
         req.filepath,
         req.function_name
     )
 
     if existing and "decision_log" in existing:
-        print('existing')
-        return existing["decision_log"]
+        return {
+            "analysis": existing.get("analysis"),
+            "ownership": existing.get("ownership"),
+            "decision_log": existing.get("decision_log")
+        }
 
-    # compute explanation
     result = explain_function(
         repo_path=req.repo_path,
         filepath=req.filepath,
@@ -79,7 +84,6 @@ def explain(req: ExplainRequest):
         repo_name=req.repo_name
     )
 
-    # store in Mongo
     update_function(
         req.repo_name,
         req.filepath,
@@ -94,7 +98,41 @@ def explain(req: ExplainRequest):
         }
     )
 
-    return result
+    stored = get_function(
+        req.repo_name,
+        req.filepath,
+        req.function_name
+    )
+
+    return {
+        "analysis": stored.get("analysis"),
+        "ownership": stored.get("ownership"),
+        "decision_log": stored.get("decision_log")
+    }
+
+
+@router.get("/functions")
+def list_functions(repo_name: str):
+
+    functions = get_repo_functions(repo_name)
+
+    return {"functions": functions}
+
+
+@router.get("/function")
+def get_function_data(repo: str, filepath: str, function_name: str):
+
+    data = get_function(repo, filepath, function_name)
+
+    return data
+
+
+@router.get("/files")
+def list_files(repo_name: str):
+
+    files = get_repo_files(repo_name)
+
+    return {"files": files}
 
 
 # include webhook routes
