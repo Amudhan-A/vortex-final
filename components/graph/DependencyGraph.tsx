@@ -153,8 +153,28 @@ export function DependencyGraph({
     zoomRef.current = zoom;
     svg.call(zoom);
 
+
+    // recompute node types relative to root
+    const nodeMap = new Map(nodes.map(n => [n.id, { ...n }]));
+
+    nodeMap.forEach(node => {
+    if (node.id === rootId) {
+        node.type = "root";
+        return;
+    }
+
+    const isDirect = edges.some(e => e.target === node.id && e.source === rootId);
+    const isCallee = edges.some(e => e.source === node.id && e.target === rootId);
+
+    if (isDirect) node.type = "direct";
+    else if (isCallee) node.type = "callee";
+    else node.type = "indirect";
+    });
+
+    const computedNodes = Array.from(nodeMap.values());
+
     // ── Radial layout
-    const nonRootNodes = nodes.filter(n => n.id !== rootId);
+    const nonRootNodes = computedNodes.filter(n => n.id !== rootId);
     const direct   = nonRootNodes.filter(n => n.type === "direct");
     const indirect = nonRootNodes.filter(n => n.type === "indirect");
     const callee   = nonRootNodes.filter(n => n.type === "callee");
@@ -197,7 +217,7 @@ export function DependencyGraph({
       const tgt  = positionMap.get(edge.target);
       if (!src || !tgt) return;
 
-      const targetNode = nodes.find(n => n.id === edge.target);
+      const targetNode = computedNodes.find(n => n.id === edge.target);
       const color = targetNode ? NODE_COLORS[targetNode.type].stroke : "#3e3e42";
 
       // Static base edge
@@ -245,7 +265,7 @@ export function DependencyGraph({
     // ── Draw nodes
     const nodeGroup = g.append("g").attr("class", "nodes");
 
-    nodes.forEach((node) => {
+    computedNodes.forEach((node) => {
       const pos = positionMap.get(node.id);
       if (!pos) return;
 
