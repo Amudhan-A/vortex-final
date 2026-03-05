@@ -5,18 +5,21 @@ import { useRouter } from "next/navigation";
 import { RepoDashboard } from "@/components/dashboard/RepoDashboard";
 import { StatsPanel } from "@/components/dashboard/StatsPanel";
 import { listFunctions, getContributors } from "@/services/api";
-import type { Contributor, FunctionData } from "@/services/api";
+import type { Contributor } from "@/services/api";
 
-const REPO      = "D:\\vortex\\project\\backend";
+const REPO = "D:\\vortex\\project\\backend";
+
+
+
 
 export default function DashboardPage() {
   const router = useRouter();
-
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [functions,    setFunctions]    = useState<any[]>([]);
   const [loading,      setLoading]      = useState(true);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     Promise.all([
       getContributors(REPO),
       listFunctions(REPO),
@@ -31,9 +34,12 @@ export default function DashboardPage() {
         generatedAt:  f.decision_log?.generated_at ?? new Date().toISOString(),
       })));
     }).finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  // ownership breakdown for StatsPanel pie chart
   const ownershipStats = contributors.map(c => ({
     name:      c.name,
     functions: c.functions,
@@ -59,16 +65,22 @@ export default function DashboardPage() {
           totalFunctions={functions.length}
           contributors={contributors}
           recentFunctions={functions.slice(0, 10)}
+
           onInspect={(fn) => {
             const match = functions.find(f => f.functionName === fn);
             const filepath = match?.filepath ?? "";
-            router.push(`/inspect?fn=${fn}&filepath=${encodeURIComponent(filepath)}`);
+            router.push(`/inspect?fn=${encodeURIComponent(fn)}&filepath=${encodeURIComponent(filepath)}`);
           }}
+          onViewAll={() => router.push("/search")}
+          onContributorClick={(name) => router.push(`/search?author=${encodeURIComponent(name)}`)}
+
+          // ← three new lines
+          onGoToInspect={() => router.push("/inspect")}
         />
       </div>
       <div className="w-72 shrink-0">
         <StatsPanel
-          commitFrequency={[]} // you don't have this endpoint yet — leave empty or add it later
+          commitFrequency={[]}
           ownership={ownershipStats}
         />
       </div>

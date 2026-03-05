@@ -150,7 +150,7 @@ export default function InspectPage() {
       <div className="absolute top-4 right-6">
         <button
           onClick={() => setSubmitted(false)}
-          className="font-mono text-[10px] text-[#6b6b6b] hover:text-[#d4d4d4] transition-colors"
+          className="font-mono m-2 text-[10px] text-[#6b6b6b] hover:text-[#d4d4d4] transition-colors"
         >
           ← inspect another
         </button>

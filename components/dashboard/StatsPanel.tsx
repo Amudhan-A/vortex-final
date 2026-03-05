@@ -117,42 +117,29 @@ function PanelSection({
 
 export function StatsPanel({ commitFrequency, ownership }: StatsPanelProps) {
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
-
   const totalFunctions = ownership.reduce((sum, o) => sum + o.functions, 0);
 
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Commit frequency */}
-      <PanelSection title="Commit Frequency">
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart
-            data={commitFrequency}
-            margin={{ top: 4, right: 4, left: -24, bottom: 0 }}
-            barCategoryGap="30%"
-          >
-            <XAxis
-              dataKey="date"
-              tick={{ fontFamily: "monospace", fontSize: 9, fill: "#6b6b6b" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontFamily: "monospace", fontSize: 9, fill: "#6b6b6b" }}
-              axisLine={false}
-              tickLine={false}
-              allowDecimals={false}
-            />
-            <Tooltip content={<BarTooltip />} cursor={{ fill: "#2a2d2e" }} />
-            <Bar
-              dataKey="commits"
-              fill="#4ec9b0"
-              radius={[2, 2, 0, 0]}
-              opacity={0.8}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </PanelSection>
+      {/* Only show commit frequency if there's data */}
+      {commitFrequency.length > 0 && (
+        <PanelSection title="Commit Frequency">
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart
+              data={commitFrequency}
+              margin={{ top: 4, right: 4, left: -24, bottom: 0 }}
+              barCategoryGap="30%"
+            >
+              <XAxis dataKey="date" tick={{ fontFamily: "monospace", fontSize: 9, fill: "#6b6b6b" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontFamily: "monospace", fontSize: 9, fill: "#6b6b6b" }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip content={<BarTooltip />} cursor={{ fill: "#2a2d2e" }} />
+              <Bar dataKey="commits" fill="#4ec9b0" radius={[2, 2, 0, 0]} opacity={0.8} />
+            </BarChart>
+          </ResponsiveContainer>
+        </PanelSection>
+      )}
+
 
       {/* Ownership breakdown */}
       <PanelSection title="Ownership Breakdown">

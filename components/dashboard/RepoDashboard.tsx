@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import { GitBranch, Clock, Code2, User, Activity, ChevronRight } from "lucide-react";
+import { GitBranch, Clock, Code2, User, ChevronRight, Search } from "lucide-react";
 import { FunctionCard } from "@/components/ui/card";
 import { AnimatedBadge } from "@/components/ui/badge";
 import { VortexButton } from "@/components/ui/button";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Contributor {
   name: string;
@@ -31,15 +29,12 @@ export interface RepoDashboardProps {
   contributors: Contributor[];
   recentFunctions: RecentFunction[];
   onInspect?: (functionName: string) => void;
+  onViewAll?: () => void;
+  onContributorClick?: (name: string) => void;
+  onGoToInspect?: () => void;
 }
 
-// ─── Stat tile ────────────────────────────────────────────────────────────────
-
-function StatTile({
-  label,
-  value,
-  icon,
-}: {
+function StatTile({ label, value, icon }: {
   label: string;
   value: string | number;
   icon: React.ReactNode;
@@ -55,32 +50,25 @@ function StatTile({
   );
 }
 
-// ─── Contributor row ──────────────────────────────────────────────────────────
-
-function ContributorRow({
-  contributor,
-  rank,
-  max,
-}: {
+function ContributorRow({ contributor, rank, max, onClick }: {
   contributor: Contributor;
   rank: number;
   max: number;
+  onClick?: () => void;
 }) {
   const pct = Math.round((contributor.commits / max) * 100);
 
   return (
-    <div className="flex items-center gap-3 py-2 border-b border-[#3e3e42] last:border-0">
-      {/* Rank */}
+    <div
+      onClick={onClick}
+      className="flex items-center gap-3 py-2 border-b border-[#3e3e42] last:border-0 hover:bg-[#2a2d2e] cursor-pointer transition-colors px-1 rounded-sm"
+    >
       <span className="font-mono text-[10px] text-[#6b6b6b] w-4 shrink-0">
         {rank === 1 ? "▲" : rank === 2 ? "▲" : "·"}
       </span>
-
-      {/* Avatar */}
       <div className="size-6 rounded-sm bg-[#2a2d2e] border border-[#3e3e42] flex items-center justify-center shrink-0">
         <User size={11} className="text-[#4ec9b0]" />
       </div>
-
-      {/* Name + bar */}
       <div className="flex-1 flex flex-col gap-1 min-w-0">
         <div className="flex items-center justify-between">
           <span className="font-mono text-xs text-[#d4d4d4] truncate">{contributor.name}</span>
@@ -88,7 +76,6 @@ function ContributorRow({
             {contributor.commits} commits
           </span>
         </div>
-        {/* Progress bar */}
         <div className="h-[2px] w-full bg-[#3e3e42] rounded-full overflow-hidden">
           <div
             className="h-full bg-[#4ec9b0] rounded-full transition-all duration-500"
@@ -96,16 +83,12 @@ function ContributorRow({
           />
         </div>
       </div>
-
-      {/* Functions count */}
       <span className="font-mono text-[10px] text-[#6b6b6b] shrink-0">
         {contributor.functions} fn
       </span>
     </div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function RepoDashboard({
   repoName,
@@ -115,14 +98,16 @@ export function RepoDashboard({
   contributors,
   recentFunctions,
   onInspect,
+  onViewAll,
+  onContributorClick,
+  onGoToInspect,
 }: RepoDashboardProps) {
   const maxCommits = Math.max(...contributors.map((c) => c.commits), 1);
   const [analyzedDate, setAnalyzedDate] = React.useState("");
+
   React.useEffect(() => {
-    const formatted = new Date(lastAnalyzed).toLocaleDateString();
-    setAnalyzedDate(formatted);
+    setAnalyzedDate(new Date(lastAnalyzed).toLocaleDateString());
   }, [lastAnalyzed]);
-  
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-y-auto">
@@ -130,9 +115,7 @@ export function RepoDashboard({
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <AnimatedBadge variant="live" text="connected" />
-          </div>
+          <AnimatedBadge variant="live" text="connected" />
           <h1 className="font-mono text-xl text-white mt-2">{repoName}</h1>
           <div className="flex items-center gap-3 mt-1">
             <div className="flex items-center gap-1">
@@ -142,34 +125,27 @@ export function RepoDashboard({
             <div className="flex items-center gap-1">
               <Clock size={11} className="text-[#6b6b6b]" />
               <span className="font-mono text-[10px] text-[#6b6b6b]">
-                {/* analyzed {analyzedDate} */}
+                analyzed {analyzedDate}
               </span>
             </div>
           </div>
         </div>
 
-        <VortexButton variant="primary" size="sm" icon={<Activity size={12} />}>
-          Re-analyze
+        <VortexButton
+          variant="primary"
+          size="sm"
+          icon={<Search size={12} />}
+          onClick={onGoToInspect}
+        >
+          Inspect
         </VortexButton>
       </div>
 
       {/* Stats row */}
       <div className="flex gap-3 flex-wrap">
-        <StatTile
-          label="Functions"
-          value={totalFunctions}
-          icon={<Code2 size={12} />}
-        />
-        <StatTile
-          label="Contributors"
-          value={contributors.length}
-          icon={<User size={12} />}
-        />
-        <StatTile
-          label="Top Owner"
-          value={contributors[0]?.name ?? "—"}
-          icon={<GitBranch size={12} />}
-        />
+        <StatTile label="Functions"    value={totalFunctions}               icon={<Code2 size={12} />} />
+        <StatTile label="Contributors" value={contributors.length}          icon={<User size={12} />} />
+        <StatTile label="Top Owner"    value={contributors[0]?.name ?? "—"} icon={<GitBranch size={12} />} />
       </div>
 
       {/* Two column layout */}
@@ -190,6 +166,7 @@ export function RepoDashboard({
                 contributor={c}
                 rank={i + 1}
                 max={maxCommits}
+                onClick={() => onContributorClick?.(c.name)}
               />
             ))}
           </div>
@@ -201,13 +178,19 @@ export function RepoDashboard({
             <span className="font-mono text-[10px] uppercase tracking-widest text-[#6b6b6b]">
               Recently Analyzed
             </span>
-            <VortexButton variant="ghost" size="sm" icon={<ChevronRight size={11} />} iconPosition="right">
+            <VortexButton
+              variant="ghost"
+              size="sm"
+              icon={<ChevronRight size={11} />}
+              iconPosition="right"
+              onClick={onViewAll}
+            >
               view all
             </VortexButton>
           </div>
           <div className="flex flex-col gap-3">
             {recentFunctions.slice(0, 3).map((fn) => (
-              <div key={fn.functionName} className="flex flex-col gap-1">
+              <div key={fn.functionName}>
                 <FunctionCard
                   functionName={fn.functionName}
                   filepath={fn.filepath}
