@@ -4,6 +4,7 @@ from api.schemas import ExplainRequest
 from service.explain_function import explain_function
 # Dev1 miner import (adjust if function name differs)
 from miner.git_processor import mine_git_history
+from .webhook import webhook_router
 
 router = APIRouter()
 
@@ -40,3 +41,7 @@ def explain(req: ExplainRequest):
     )
 
     return result
+
+    
+# include webhook routes
+router.include_router(webhook_router)
