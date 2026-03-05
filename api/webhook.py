@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-webhook_router = APIRouter(prefix="/webhook")
+webhook_router = APIRouter()
 
-@webhook_router.post("/github")
-async def github_webhook():
+
+@webhook_router.post("/webhook/github")
+def github_webhook(payload: dict):
     return {"status": "received"}
