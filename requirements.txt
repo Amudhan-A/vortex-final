@@ -4,3 +4,5 @@ pymongo
 python-dotenv
 requests
 pydantic
+networkx
+gitpython
