@@ -131,3 +131,23 @@ export async function getCommitFrequency(repo: string): Promise<CommitFrequencyP
   const data = await res.json();
   return data.commitFrequency;
 }
+
+
+export interface SearchResult {
+  function_name: string;
+  filepath: string;
+  ownership: {
+    primary_owner: string;
+    confidence: number;
+  };
+}
+
+export async function searchFunctions(repo: string, query: string): Promise<SearchResult[]> {
+  const url = new URL(`${BASE}/search`);
+  url.searchParams.set("repo", repo);
+  url.searchParams.set("query", query);
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.results;
+}
