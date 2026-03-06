@@ -10,6 +10,7 @@ export default function SetupPage() {
   const handleSubmit = () => {
     if (!repoPath.trim()) return;
     saveRepo(repoPath.trim());
+    window.dispatchEvent(new Event("storage"));
     router.push("/");
   };
 

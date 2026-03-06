@@ -8,9 +8,10 @@ import type { Contributor } from "@/services/api";
 import { getSavedRepo } from "@/lib/config";
 
 
-const REPO = getSavedRepo() ?? "";
 
 export default function DashboardPage() {
+
+  const REPO = getSavedRepo() ?? "";
   const router = useRouter();  // ← inside component
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [functions,    setFunctions]    = useState<any[]>([]);
