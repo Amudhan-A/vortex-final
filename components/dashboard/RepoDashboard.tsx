@@ -265,6 +265,10 @@ export function RepoDashboard({
               />
             ))}
           </div>
+        {/* Ownership chart — sits right under the table */}
+          {ownership && ownership.length > 0 && (
+            <OwnershipChart ownership={ownership} />
+          )}
         </div>
 
         {/* Recent functions */}
@@ -302,10 +306,7 @@ export function RepoDashboard({
 
       </div>
 
-      {/* Ownership pie chart — inline, below the two columns */}
-      {ownership && ownership.length > 0 && (
-        <OwnershipChart ownership={ownership} />
-      )}
+      
 
     </div>
   );
