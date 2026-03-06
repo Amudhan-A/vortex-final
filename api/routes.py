@@ -269,5 +269,21 @@ def get_commit_frequency(repo: str):
         ]
     }
 
+
+
+@router.get("/search")
+def search_functions(repo: str, query: str):
+    # simple text match against function_name, filepath, ownership, why_it_exists
+    functions = get_repo_functions(repo)
+    query_lower = query.lower()
+    results = [
+        f for f in functions
+        if query_lower in f.get("function_name", "").lower()
+        or query_lower in f.get("filepath", "").lower()
+        or query_lower in f.get("ownership", {}).get("primary_owner", "").lower()
+    ]
+    return { "results": results }
+
+
 # include webhook routes
 router.include_router(webhook_router)
