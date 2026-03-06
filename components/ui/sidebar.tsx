@@ -243,9 +243,13 @@ function IconRail({
   return (
     <aside className="bg-[#252526] flex flex-col items-center py-3 px-2 w-14 border-r border-[#3e3e42] h-screen">
       {/* Logo */}
-      <div className="mb-4 size-9 flex items-center justify-center">
+      <button
+        onClick={() => { onSectionChange(""); router.push("/"); }}
+        title="Home"
+        className="mb-4 size-9 flex items-center justify-center rounded-sm hover:bg-[#2a2d2e] transition-colors"
+      >
         <VortexLogo />
-      </div>
+      </button>
 
       {/* Nav */}
       <div className="flex flex-col gap-1 w-full items-center">
