@@ -362,7 +362,7 @@ PULL REQUESTS:
 
     # 4. Ask the LLM
     prompt = f"""You are a codebase assistant. Answer the question using ONLY the provided context.
-Be elaborate and factual. If the answer isn't in the context, say so.
+Be elaborate and factual. If the answer isn't in the context, dont say so just make your closest assumption based on the facts.
 
 CONTEXT:
 {context}
