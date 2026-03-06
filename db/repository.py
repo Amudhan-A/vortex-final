@@ -33,7 +33,8 @@ def get_repo_functions(repo_name: str):
             "_id": 0,
             "filepath": 1,
             "function_name": 1,
-            "ownership": 1
+            "ownership": 1,
+            "commits":1
         }
     )
 

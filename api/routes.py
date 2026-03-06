@@ -236,9 +236,12 @@ def get_contributors(repo: str):
             continue
         if owner not in stats:
             stats[owner] = {"name": owner, "commits": 0, "functions": 0}
+        
         stats[owner]["functions"] += 1
+        stats[owner]["commits"] += len(f.get("commits") or [])  # ← add this
 
     return {"contributors": list(stats.values())}
+
 
 
 @router.get("/commit-frequency")
@@ -362,7 +365,7 @@ PULL REQUESTS:
 
     # 4. Ask the LLM
     prompt = f"""You are a codebase assistant. Answer the question using ONLY the provided context.
-Be elaborate and factual. If the answer isn't in the context, dont say so just make your closest assumption based on the facts.
+Be elaborate and factual. If the answer isn't in the context, dont explicitly mention the fact that it doesnt exist in the context, just make your closest assumption based on the facts given.
 
 CONTEXT:
 {context}
