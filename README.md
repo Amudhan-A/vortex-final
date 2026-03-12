@@ -295,7 +295,7 @@ The judges highlighted:
 - Generating **decision logs from commit history and an aesthetic, dynamic Dependency Graph**
 - Providing **explainability for large repositories**
 
-The prototype was designed, implemented, and demonstrated within **24 hours**.
+
 
 ## License
 
