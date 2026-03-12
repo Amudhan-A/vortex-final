@@ -284,6 +284,18 @@ MONGO_URI=mongodb://localhost:27017
 Add a `GITHUB_TOKEN` to `.env` and pass it as a header in `github_fetcher.py` to avoid rate limiting on private repos.
 
 ---
+## 🏆 Hackathon Recognition
+
+**Vortex** was built during a **24-hour hackathon conducted by IEEE Student Branch**.
+
+Our project received a **Special Mention** for innovation in developer tooling and code understanding.
+
+The judges highlighted:
+- Using **static analysis + Git mining** to understand real codebases
+- Generating **decision logs from commit history**
+- Providing **explainability for large repositories**
+
+The prototype was designed, implemented, and demonstrated within **24 hours**.
 
 ## License
 
