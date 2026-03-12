@@ -292,7 +292,7 @@ Our project received a **Special Mention** for innovation in developer tooling a
 
 The judges highlighted:
 - Using **static analysis + Git mining** to understand real codebases
-- Generating **decision logs from commit history**
+- Generating **decision logs from commit history and an aesthetic, dynamic Dependency Graph**
 - Providing **explainability for large repositories**
 
 The prototype was designed, implemented, and demonstrated within **24 hours**.
