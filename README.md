@@ -63,28 +63,28 @@ Repository overview showing total functions analyzed, top contributors by commit
 ### Dashboard
 Overview of repository statistics including total analyzed functions, top contributors, and ownership distribution.
 
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](screenshots/dashboard.jpeg)
 
 ---
 
 ### Function Inspector
 Analyze any function to view callers, callees, blast radius, ownership, and the LLM-generated decision log.
 
-![Inspector](screenshots/inspector.png)
+![Inspector](screenshots/inspector.jpeg)
 
 ---
 
 ### Dependency Graph
 Interactive D3 visualization showing function relationships across the entire repository.
 
-![Dependency Graph](screenshots/graph.png)
+![Dependency Graph](screenshots/graph.jpeg)
 
 ---
 
 ### Ask Codebase
 Natural language querying over the repository using semantic scoring and LLM reasoning.
 
-![Ask](screenshots/ask.png)
+![Ask](screenshots/ask.jpeg)
 
 ## Tech Stack
 
