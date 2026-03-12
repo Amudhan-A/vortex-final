@@ -56,6 +56,35 @@ Backed by semantic scoring over MongoDB + Ollama context window.
 Repository overview showing total functions analyzed, top contributors by commit count, ownership breakdown pie chart, and recently analyzed functions.
 
 ---
+---
+
+## Screenshots
+
+### Dashboard
+Overview of repository statistics including total analyzed functions, top contributors, and ownership distribution.
+
+![Dashboard](screenshots/dashboard.png)
+
+---
+
+### Function Inspector
+Analyze any function to view callers, callees, blast radius, ownership, and the LLM-generated decision log.
+
+![Inspector](screenshots/inspector.png)
+
+---
+
+### Dependency Graph
+Interactive D3 visualization showing function relationships across the entire repository.
+
+![Dependency Graph](screenshots/graph.png)
+
+---
+
+### Ask Codebase
+Natural language querying over the repository using semantic scoring and LLM reasoning.
+
+![Ask](screenshots/ask.png)
 
 ## Tech Stack
 
